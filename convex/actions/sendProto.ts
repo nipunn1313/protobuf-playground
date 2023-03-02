@@ -4,7 +4,7 @@ import protobuf from "protobufjs";
 import {temporaryFile} from 'tempy';
 import camelcaseKeys from 'camelcase-keys';
 
-export default action(async ({runMutation}, protoContents: string, fqPath: string, unserialized: string): Promise<string> => {
+export const serialize = action(async ({runMutation}, protoContents: string, fqPath: string, unserialized: string): Promise<string> => {
   await runMutation("save:protoDef", protoContents, fqPath, unserialized, null);
 
   const t = temporaryFile({name: "input.proto"});
@@ -36,11 +36,9 @@ export default action(async ({runMutation}, protoContents: string, fqPath: strin
   const message = messageDef.create(unserializedParsed);
 
   const encoded = messageDef.encode(message).finish();
-  console.log(`buffer = ${Array.prototype.toString.call(encoded)}`);
+  const hex = [...encoded].map(b => b.toString(16).padStart(2, "0")).join(" ");
+  console.log(`buffer = ${hex}`);
 
-  const asText = Array.apply([], Array.from(encoded)).join(",");
-  console.log(asText);
-
-  await runMutation("save:protoDef", protoContents, fqPath, unserialized, asText);
+  await runMutation("save:protoDef", protoContents, fqPath, unserialized, hex);
   return "Successfully serialized";
 })

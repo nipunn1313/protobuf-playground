@@ -7,11 +7,9 @@ export default function App() {
   const [serializedText, setSerializedText] = useState<string | undefined>(undefined)
   const [fqPath, setFqPath] = useState<string | undefined>(undefined)
   const [resultText, setResultText] = useState<string | undefined>(undefined)
-  const sendProto = useAction('actions/sendProto')
+  const sendProto = useAction('actions/sendProto:serialize')
   const serverProtoDef = useQuery('latest:protoDef')
   
-  console.log(fqPath);
-  console.log(serverProtoDef);
   useEffect(() => {
     if (protoText === undefined && serverProtoDef) {
       setProtoText(serverProtoDef!.protoDef);
@@ -25,7 +23,7 @@ export default function App() {
     event.preventDefault()
     const err = await sendProto(protoText!, fqPath || "", unserializedText || "");
     setResultText(err);
-    console.log(err);
+    setSerializedText(undefined);
   }
 
   return (
@@ -57,7 +55,7 @@ export default function App() {
             <span style={{alignSelf:"center"}}>Serialized</span>
             <textarea
               style={{height: "200px", width: "800px"}}
-              value={serverProtoDef?.serialized || ""}
+              value={serializedText || serverProtoDef?.serialized || ""}
               onChange={(event) => setSerializedText(event.target.value)}
               placeholder={ serverProtoDef === undefined ? "Loading..." : "Serialized representation…" }
             />
