@@ -46,5 +46,6 @@ export default action(async ({runMutation}, protoContents: string, fqPath: strin
   const asText = Array.apply([], Array.from(encoded)).join(",");
   console.log(asText);
 
-  return `encoded: "${asText}"`;
+  await runMutation("save:protoDef", protoContents, fqPath, unserialized, asText);
+  return "Successfully serialized";
 })

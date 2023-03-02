@@ -4,6 +4,7 @@ import { useAction, useQuery } from '../convex/_generated/react'
 export default function App() {
   const [protoText, setProtoText] = useState<string | undefined>(undefined)
   const [unserializedText, setUnserializedText] = useState<string | undefined>(undefined)
+  const [serializedText, setSerializedText] = useState<string | undefined>(undefined)
   const [fqPath, setFqPath] = useState<string | undefined>(undefined)
   const [resultText, setResultText] = useState<string | undefined>(undefined)
   const sendProto = useAction('actions/sendProto')
@@ -51,7 +52,14 @@ export default function App() {
               style={{height: "200px", width: "800px"}}
               value={unserializedText || ""}
               onChange={(event) => setUnserializedText(event.target.value)}
-              placeholder={ false ? "Loading..." : "Unserialized representation…" }
+              placeholder={ serverProtoDef === undefined ? "Loading..." : "Unserialized representation…" }
+            />
+            <span style={{alignSelf:"center"}}>Serialized</span>
+            <textarea
+              style={{height: "200px", width: "800px"}}
+              value={serverProtoDef!.serialized || ""}
+              onChange={(event) => setSerializedText(event.target.value)}
+              placeholder={ serverProtoDef === undefined ? "Loading..." : "Serialized representation…" }
             />
           </div>
           <div style={{display:"flex", flexDirection:"column"}}>
