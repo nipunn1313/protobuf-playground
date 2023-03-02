@@ -1,45 +1,65 @@
 import { FormEvent, useEffect, useState } from 'react'
-import { useMutation, useQuery } from '../convex/_generated/react'
+import { useAction, useQuery } from '../convex/_generated/react'
 
 export default function App() {
-  const messages = useQuery('listMessages') || []
-
-  const [newMessageText, setNewMessageText] = useState('')
-  const sendMessage = useMutation('sendMessage')
-
-  const [name, setName] = useState('user')
-
+  const [protoText, setProtoText] = useState<string | undefined>(undefined)
+  const [unserializedText, setUnserializedText] = useState<string | undefined>(undefined)
+  const [fqPath, setFqPath] = useState<string | undefined>(undefined)
+  const [resultText, setResultText] = useState<string | undefined>(undefined)
+  const sendProto = useAction('actions/sendProto')
+  const serverProtoDef = useQuery('latest:protoDef')
+  
+  console.log(fqPath);
+  console.log(serverProtoDef);
   useEffect(() => {
-    setName('User ' + Math.floor(Math.random() * 10000))
-  }, [])
+    if (protoText === undefined && serverProtoDef) {
+      setProtoText(serverProtoDef!.protoDef);
+      setFqPath(serverProtoDef!.fqPath);
+      setUnserializedText(serverProtoDef!.unserialized);
+      sendProto(serverProtoDef!.protoDef, serverProtoDef!.fqPath, serverProtoDef.unserialized).then(setResultText);
+    }
+  })
 
   async function handleSendMessage(event: FormEvent) {
     event.preventDefault()
-    setNewMessageText('')
-    await sendMessage(newMessageText, name)
+    const err = await sendProto(protoText!, fqPath || "", unserializedText || "");
+    setResultText(err);
+    console.log(err);
   }
+
   return (
     <main>
-      <h1>Convex Chat</h1>
-      <p className="badge">
-        <span>{name}</span>
-      </p>
-      <ul>
-        {messages.map((message) => (
-          <li key={message._id.toString()}>
-            <span>{message.author}:</span>
-            <span>{message.body}</span>
-            <span>{new Date(message._creationTime).toLocaleTimeString()}</span>
-          </li>
-        ))}
-      </ul>
+      <h1>Protobuf Playground</h1>
       <form onSubmit={handleSendMessage}>
-        <input
-          value={newMessageText}
-          onChange={(event) => setNewMessageText(event.target.value)}
-          placeholder="Write a message…"
-        />
-        <input type="submit" value="Send" disabled={!newMessageText} />
+        <div style={{display:"flex"}}>
+          <div style={{display:"flex", flexDirection:"column", justifyContent:"flex-start"}}>
+            <span style={{alignSelf:"center"}}>input.proto</span>
+            <textarea
+              style={{height: "200px", width: "800px"}}
+              value={protoText || ""}
+              onChange={(event) => setProtoText(event.target.value)}
+              placeholder={ serverProtoDef === undefined ? "Loading..." : ".proto file contents…" }
+            />
+            <span style={{alignSelf:"center"}}>Fully Qualified path to Message</span>
+            <input
+              value={fqPath || ""}
+              onChange={(event) => setFqPath(event.target.value)}
+              placeholder={ serverProtoDef === undefined ? "Loading..." : "FQ Path…" }
+            />
+            <span style={{alignSelf:"center"}}>Unserialized (as JSON)</span>
+            <textarea
+              style={{height: "200px", width: "800px"}}
+              value={unserializedText || ""}
+              onChange={(event) => setUnserializedText(event.target.value)}
+              placeholder={ false ? "Loading..." : "Unserialized representation…" }
+            />
+          </div>
+          <div style={{display:"flex", flexDirection:"column"}}>
+            <span style={{alignSelf:"center"}}>Result</span>
+            <span>{resultText}</span>
+          </div>
+        </div>
+        <input type="submit" value="Send" disabled={!protoText} />
       </form>
     </main>
   )

@@ -1,8 +1,10 @@
 import { defineSchema, defineTable, s } from 'convex/schema'
 
 export default defineSchema({
-  messages: defineTable({
-    author: s.string(),
-    body: s.string(),
+  protoDefs: defineTable({
+    protoDef: s.string(),
+    fqPath: s.string(),
+    unserialized: s.string(),
+    serialized: s.union(s.string(), s.null()),
   }),
 })
