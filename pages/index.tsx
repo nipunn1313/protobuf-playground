@@ -57,7 +57,7 @@ export default function App() {
             <span style={{alignSelf:"center"}}>Serialized</span>
             <textarea
               style={{height: "200px", width: "800px"}}
-              value={serverProtoDef!.serialized || ""}
+              value={serverProtoDef?.serialized || ""}
               onChange={(event) => setSerializedText(event.target.value)}
               placeholder={ serverProtoDef === undefined ? "Loading..." : "Serialized representation…" }
             />

@@ -32,15 +32,10 @@ export default action(async ({runMutation}, protoContents: string, fqPath: strin
   } catch (e) {
     return `Invalid JSON: ${e}`;
   }
-  console.log(unserializedParsed);
-
   
   const message = messageDef.create(unserializedParsed);
-  console.log(JSON.stringify(message));
 
   const encoded = messageDef.encode(message).finish();
-  console.log(encoded);
-  console.log(encoded.length);
   console.log(`buffer = ${Array.prototype.toString.call(encoded)}`);
 
   const asText = Array.apply([], Array.from(encoded)).join(",");
