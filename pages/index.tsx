@@ -7,7 +7,8 @@ export default function App() {
   const [serializedText, setSerializedText] = useState<string | undefined>(undefined)
   const [fqPath, setFqPath] = useState<string | undefined>(undefined)
   const [resultText, setResultText] = useState<string | undefined>(undefined)
-  const sendProto = useAction('actions/sendProto:serialize')
+  const serializeProto = useAction('actions/sendProto:serialize')
+  const deserializeProto = useAction('actions/sendProto:deserialize')
   const serverProtoDef = useQuery('latest:protoDef')
   
   useEffect(() => {
@@ -15,21 +16,33 @@ export default function App() {
       setProtoText(serverProtoDef!.protoDef);
       setFqPath(serverProtoDef!.fqPath);
       setUnserializedText(serverProtoDef!.unserialized);
-      sendProto(serverProtoDef!.protoDef, serverProtoDef!.fqPath, serverProtoDef.unserialized).then(setResultText);
+      serializeProto(serverProtoDef!.protoDef, serverProtoDef!.fqPath, serverProtoDef.unserialized).then(setResultText);
     }
   })
 
-  async function handleSendMessage(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    const err = await sendProto(protoText!, fqPath || "", unserializedText || "");
-    setResultText(err);
-    setSerializedText(undefined);
+    setResultText("Processing...");
+    try {
+      console.log(unserializedText)
+      if (unserializedText === serverProtoDef?.unserialized && serializedText && serializedText !== serverProtoDef?.serialized) {
+        const err = await deserializeProto(protoText!, fqPath || "", serializedText || "");
+        setResultText(err);
+        setUnserializedText(undefined);
+      } else {
+        const err = await serializeProto(protoText!, fqPath || "", unserializedText || serverProtoDef?.unserialized || "");
+        setResultText(err);
+        setSerializedText(undefined);
+      }
+    } catch (e) {
+      setResultText(`Failed: ${(e as Error).toString().split("\n")[0]}`);
+    }
   }
 
   return (
     <main>
       <h1>Protobuf Playground</h1>
-      <form onSubmit={handleSendMessage}>
+      <form onSubmit={handleSubmit}>
         <div style={{display:"flex"}}>
           <div style={{display:"flex", flexDirection:"column", justifyContent:"flex-start"}}>
             <span style={{alignSelf:"center"}}>input.proto</span>
@@ -48,7 +61,7 @@ export default function App() {
             <span style={{alignSelf:"center"}}>Unserialized (as JSON)</span>
             <textarea
               style={{height: "200px", width: "800px"}}
-              value={unserializedText || ""}
+              value={unserializedText || serverProtoDef?.unserialized || ""}
               onChange={(event) => setUnserializedText(event.target.value)}
               placeholder={ serverProtoDef === undefined ? "Loading..." : "Unserialized representation…" }
             />
