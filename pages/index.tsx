@@ -10,13 +10,21 @@ export default function App() {
   const serializeProto = useAction('actions/sendProto:serialize')
   const deserializeProto = useAction('actions/sendProto:deserialize')
   const serverProtoDef = useQuery('latest:protoDef')
-  
+
   useEffect(() => {
-    if (protoText === undefined && serverProtoDef) {
-      setProtoText(serverProtoDef!.protoDef);
-      setFqPath(serverProtoDef!.fqPath);
-      setUnserializedText(serverProtoDef!.unserialized);
-      serializeProto(serverProtoDef!.protoDef, serverProtoDef!.fqPath, serverProtoDef.unserialized).then(setResultText);
+    if (serverProtoDef) {
+      if (protoText === undefined) {
+        setProtoText(serverProtoDef!.protoDef);
+      }
+      if (fqPath === undefined) {
+        setFqPath(serverProtoDef!.fqPath);
+      }
+      if (unserializedText === undefined) {
+        setUnserializedText(serverProtoDef!.unserialized);
+      }
+      if (serializedText === undefined) {
+        setSerializedText(serverProtoDef!.serialized || undefined);
+      }
     }
   })
 
@@ -24,7 +32,6 @@ export default function App() {
     event.preventDefault()
     setResultText("Processing...");
     try {
-      console.log(unserializedText)
       if (unserializedText === serverProtoDef?.unserialized && serializedText && serializedText !== serverProtoDef?.serialized) {
         const err = await deserializeProto(protoText!, fqPath || "", serializedText || "");
         setResultText(err);
@@ -61,14 +68,14 @@ export default function App() {
             <span style={{alignSelf:"center"}}>Unserialized (as JSON)</span>
             <textarea
               style={{height: "200px", width: "800px"}}
-              value={unserializedText || serverProtoDef?.unserialized || ""}
+              value={unserializedText || ""}
               onChange={(event) => setUnserializedText(event.target.value)}
               placeholder={ serverProtoDef === undefined ? "Loading..." : "Unserialized representation…" }
             />
             <span style={{alignSelf:"center"}}>Serialized</span>
             <textarea
               style={{height: "200px", width: "800px"}}
-              value={serializedText || serverProtoDef?.serialized || ""}
+              value={serializedText || ""}
               onChange={(event) => setSerializedText(event.target.value)}
               placeholder={ serverProtoDef === undefined ? "Loading..." : "Serialized representation…" }
             />
