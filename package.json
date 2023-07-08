@@ -14,7 +14,7 @@
     "camelcase-keys": "^8.0.2",
     "convex": "0.9.1",
     "next": "latest",
-    "protobufjs": "^7.2.2",
+    "protobufjs": "^7.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tempfile": "^5.0.0",
