@@ -1,6 +1,9 @@
 import { query } from './_generated/server'
-import { Document } from './_generated/dataModel'
+import { Doc } from './_generated/dataModel'
 
-export const protoDef = query(async ({ db }): Promise<Document<"protoDefs"> | null> => {
-  return await db.query("protoDefs").order("desc").first();
-})
+export const protoDef = query(
+  async ({ db }): Promise<Doc<'protoDefs'> | null> => {
+    return await db.query('protoDefs').order('desc').first()
+  }
+)
+

@@ -1,10 +1,11 @@
-import { defineSchema, defineTable, s } from 'convex/schema'
+import { defineSchema, defineTable } from 'convex/server'
+import { v } from 'convex/values'
 
 export default defineSchema({
   protoDefs: defineTable({
-    protoDef: s.string(),
-    fqPath: s.string(),
-    unserialized: s.string(),
-    serialized: s.union(s.string(), s.null()),
+    protoDef: v.string(),
+    fqPath: v.string(),
+    unserialized: v.string(),
+    serialized: v.union(v.string(), v.null()),
   }),
 })
